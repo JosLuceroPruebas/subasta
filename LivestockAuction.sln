@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LivestockAuction", "LivestockAuction.csproj", "{17E6A332-E3BA-411C-8772-7F9DFD288582}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17E6A332-E3BA-411C-8772-7F9DFD288582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17E6A332-E3BA-411C-8772-7F9DFD288582}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17E6A332-E3BA-411C-8772-7F9DFD288582}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17E6A332-E3BA-411C-8772-7F9DFD288582}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80EC8867-3DB3-4ED1-B309-ADEA1E3A9B18}
+	EndGlobalSection
+EndGlobal

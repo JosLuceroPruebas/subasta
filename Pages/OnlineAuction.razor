@@ -1,0 +1,83 @@
+@page "/online-auction"
+@inject LivestockAuction.Services.LotService LotService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Subasta Online</MudText>
+    
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.h5" Class="mb-2">Transmisión en vivo</MudText>
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+            <iframe src="@($"https://www.youtube.com/embed/{YouTubeVideoId}")"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
+                    allowfullscreen="" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+        </div>
+    </MudPaper>
+    
+    <MudGrid>
+        <MudItem xs="12" sm="8">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5">Lotes Actuales</MudText>
+                <MudList T="LivestockAuction.Services.Lot">
+                    @foreach (var lot in _lots)
+                    {
+                        <MudListItem>
+                            <MudText>@lot.Description - Oferta Actual: $@lot.CurrentBid</MudText>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => SelectLot(lot.Id))">Seleccionar</MudButton>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5">Hacer una Oferta</MudText>
+                @if (_selectedLot != null)
+                {
+                    <MudText>Lote seleccionado: @_selectedLot.Description</MudText>
+                    <MudText>Oferta actual: $@_selectedLot.CurrentBid</MudText>
+                    <MudNumericField @bind-Value="_bidAmount" Label="Monto de la Oferta" Variant="Variant.Outlined" Min="@(_selectedLot.CurrentBid + 1)" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="PlaceBid" Class="mt-4">Ofertar</MudButton>
+                }
+                else
+                {
+                    <MudText>Seleccione un lote para ofertar</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<LivestockAuction.Services.Lot> _lots = new List<LivestockAuction.Services.Lot>();
+    private LivestockAuction.Services.Lot? _selectedLot;
+    private decimal _bidAmount;
+    private string YouTubeVideoId = "dQw4w9WgXcQ"; // Replace with your actual YouTube video ID
+
+    protected override void OnInitialized()
+    {
+        _lots = LotService.GetLots();
+    }
+
+    private void SelectLot(int lotId)
+    {
+        _selectedLot = _lots.FirstOrDefault(l => l.Id == lotId);
+        _bidAmount = _selectedLot?.CurrentBid ?? 0 + 1;
+    }
+
+    private void PlaceBid()
+    {
+        if (_selectedLot == null || _bidAmount <= _selectedLot.CurrentBid)
+        {
+            Snackbar.Add("La oferta debe ser mayor que la oferta actual.", Severity.Warning);
+            return;
+        }
+
+        LotService.PlaceBid(_selectedLot.Id, _bidAmount);
+        _selectedLot.CurrentBid = _bidAmount;
+        Snackbar.Add($"Oferta de ${_bidAmount} realizada con éxito para {_selectedLot.Description}.", Severity.Success);
+        _bidAmount = _selectedLot.CurrentBid + 1;
+    }
+}

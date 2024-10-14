@@ -1,0 +1,62 @@
+@page "/"
+@inject ISnackbar Snackbar
+@inject LivestockAuction.Services.LotService LotService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Bienvenido a la Subasta Ganadera</MudText>
+    
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5">Lotes Actuales</MudText>
+                <MudList T="LivestockAuction.Services.Lot">
+                    @foreach (var lot in _lots)
+                    {
+                        <MudListItem>
+                            <MudText>@lot.Description - Oferta Actual: $@lot.CurrentBid</MudText>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5">Hacer una Oferta</MudText>
+                <MudSelect T="int" Label="Seleccionar Lote" @bind-Value="_selectedLotId">
+                    @foreach (var lot in _lots)
+                    {
+                        <MudSelectItem Value="@lot.Id">@lot.Description</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudNumericField @bind-Value="_bidAmount" Label="Monto de la Oferta" Variant="Variant.Outlined" Min="0" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="PlaceBid" Class="mt-4">Ofertar</MudButton>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<LivestockAuction.Services.Lot> _lots = new List<LivestockAuction.Services.Lot>();
+    private int _selectedLotId;
+    private decimal _bidAmount;
+
+    protected override void OnInitialized()
+    {
+        _lots = LotService.GetLots();
+    }
+
+    private void PlaceBid()
+    {
+        var selectedLot = _lots.FirstOrDefault(l => l.Id == _selectedLotId);
+        if (selectedLot == null || _bidAmount <= selectedLot.CurrentBid)
+        {
+            Snackbar.Add("Por favor, seleccione un lote y ingrese un monto válido mayor que la oferta actual.", Severity.Warning);
+            return;
+        }
+
+        LotService.PlaceBid(_selectedLotId, _bidAmount);
+        selectedLot.CurrentBid = _bidAmount;
+        Snackbar.Add($"Oferta de ${_bidAmount} realizada con éxito para {selectedLot.Description}.", Severity.Success);
+        _bidAmount = 0;
+    }
+}

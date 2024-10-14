@@ -1,0 +1,99 @@
+@page "/animal-registration"
+@inject ISnackbar Snackbar
+@inject LivestockAuction.Services.AnimalRegistrationService AnimalRegistrationService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Recepción de Animales</MudText>
+    
+    <MudPaper Class="pa-4 mb-4">
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+            <MudTextField T="string" Label="Nombre del Vendedor" Required="true" RequiredError="El nombre del vendedor es requerido" @bind-Value="sellerName" />
+            <MudTextField T="string" Label="Tipo de Animal" Required="true" RequiredError="El tipo de animal es requerido" @bind-Value="animal.AnimalType" />
+            <MudTextField T="string" Label="Raza" Required="true" RequiredError="La raza es requerida" @bind-Value="animal.Breed" />
+            <MudNumericField T="int" Label="Edad (meses)" Required="true" Min="1" RequiredError="La edad es requerida" @bind-Value="animal.Age" />
+            <MudNumericField T="decimal" Label="Peso (kg)" Required="true" Min="1" RequiredError="El peso es requerido" @bind-Value="animal.Weight" />
+            <MudTextField T="string" Label="Condición de Salud" Required="true" RequiredError="La condición de salud es requerida" @bind-Value="animal.HealthCondition" />
+            <MudNumericField T="decimal" Label="Precio Base ($)" Required="true" Min="1" RequiredError="El precio base es requerido" @bind-Value="animal.BasePrice" />
+            
+            <div class="d-flex align-center justify-space-between mt-6">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => form.Validate())">Validar</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@AddAnimal" Disabled="@(!success)">Agregar Animal</MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h5" Class="mb-4">Animales Registrados del Vendedor: @sellerName</MudText>
+        <MudTable Items="@registeredAnimals" Hover="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Tipo</MudTh>
+                <MudTh>Raza</MudTh>
+                <MudTh>Edad (meses)</MudTh>
+                <MudTh>Peso (kg)</MudTh>
+                <MudTh>Condición de Salud</MudTh>
+                <MudTh>Precio Base ($)</MudTh>
+                <MudTh>Acciones</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Tipo">@context.AnimalType</MudTd>
+                <MudTd DataLabel="Raza">@context.Breed</MudTd>
+                <MudTd DataLabel="Edad">@context.Age</MudTd>
+                <MudTd DataLabel="Peso">@context.Weight</MudTd>
+                <MudTd DataLabel="Condición">@context.HealthCondition</MudTd>
+                <MudTd DataLabel="Precio Base">@context.BasePrice</MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => RemoveAnimal(context))">Eliminar</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@SubmitAnimals" Class="mt-4" Disabled="@(registeredAnimals.Count == 0)">Registrar Todos los Animales</MudButton>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private bool success;
+    private string[] errors = Array.Empty<string>();
+    private MudForm form = null!;
+
+    private string sellerName = "";
+    private LivestockAuction.Services.Animal animal = new();
+    private List<LivestockAuction.Services.Animal> registeredAnimals = new();
+
+    private void AddAnimal()
+    {
+        registeredAnimals.Add(new LivestockAuction.Services.Animal
+        {
+            AnimalType = animal.AnimalType,
+            Breed = animal.Breed,
+            Age = animal.Age,
+            Weight = animal.Weight,
+            HealthCondition = animal.HealthCondition,
+            BasePrice = animal.BasePrice
+        });
+
+        animal = new LivestockAuction.Services.Animal();
+        form.ResetValidation();
+        StateHasChanged();
+    }
+
+    private void RemoveAnimal(LivestockAuction.Services.Animal animalToRemove)
+    {
+        registeredAnimals.Remove(animalToRemove);
+        StateHasChanged();
+    }
+
+    private void SubmitAnimals()
+    {
+        foreach (var registeredAnimal in registeredAnimals)
+        {
+            AnimalRegistrationService.RegisterAnimal(registeredAnimal);
+        }
+        
+        Snackbar.Add($"{registeredAnimals.Count} animales registrados para {sellerName}", Severity.Success);
+        
+        registeredAnimals.Clear();
+        sellerName = "";
+        StateHasChanged();
+    }
+}
