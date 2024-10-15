@@ -4,46 +4,52 @@
 @inject ISnackbar Snackbar
 @using static MudBlazor.Icons.Material.Filled
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Subasta de Ganado en Vivo</MudText>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.Pets" Class="mr-3" />
+        Subasta de Ganado en Vivo
+    </MudText>
     
     <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
+        <MudItem xs="12">
             <MudPaper Class="pa-4 mb-4">
-                <MudText Typo="Typo.h5" Class="mb-2">Información de la Subasta</MudText>
-                <MudList T="string">
-                    <MudListItem Text="Número de Subasta"
-                                 SecondaryText="@OnlineAuctionService.GetAuctionNumber()"
-                                 Icon="@Icons.Material.Filled.Gavel"
-                                 IconColor="Color.Primary" />
-                    <MudListItem Text="Fecha de Subasta"
-                                 SecondaryText="@OnlineAuctionService.GetAuctionDate().ToShortDateString()"
-                                 Icon="@Icons.Material.Filled.CalendarToday"
-                                 IconColor="Color.Primary" />
+                <MudText Typo="Typo.h5" Class="mb-2 d-flex align-center justify-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
+                    Información de la Subasta
+                </MudText>
+
+                <MudList T="string" Dense="true">
+                    <MudListItem>
+                        <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <!-- Número de Subasta -->
+                            <MudItem xs="6">
+                                <MudListItem Icon="@Icons.Material.Filled.Tag" IconColor="Color.Primary">
+                                    <MudStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Spacing="1">
+                                        <MudText Typo="Typo.body1">Número de Subasta</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary">@OnlineAuctionService.GetAuctionNumber()</MudText>
+                                    </MudStack>
+                                </MudListItem>
+                            </MudItem>
+
+                            <!-- Fecha de Subasta -->
+                            <MudItem xs="6">
+                                <MudListItem Icon="@Icons.Material.Filled.CalendarToday" IconColor="Color.Secondary">
+                                    <MudText Typo="Typo.body1">Fecha de Subasta</MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@OnlineAuctionService.GetAuctionDate().ToShortDateString()</MudText>
+                                </MudListItem>
+                            </MudItem>
+                        </MudGrid>
+                    </MudListItem>
                 </MudList>
             </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="6" md="4">
+       
+        <MudItem xs="12" md="8">
             <MudPaper Class="pa-4 mb-4">
-                <MudText Typo="Typo.h5" Class="mb-2">Pujas Actuales</MudText>
-<MudList T="string">
-    @foreach (var bid in OnlineAuctionService.GetCurrentBids())
-    {
-        <MudListItem>
-            <MudListItemIcon Icon="@Icons.Material.Filled.Person" IconColor="Color.Primary" />
-            <MudListItemText>
-                <MudText>@($"{bid.BidderName} ({bid.BidderNumber})")</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">Monto: $@bid.Amount</MudText>
-            </MudListItemText>
-        </MudListItem>
-    }
-</MudList>
-
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4 mb-4">
-                <MudText Typo="Typo.h5" Class="mb-2">Transmisión en vivo</MudText>
+                <MudText Typo="Typo.h5" Class="mb-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Visibility" Class="mr-2" />
+                    Transmisión en vivo
+                </MudText>
                 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
                     <iframe src="@($"https://www.youtube.com/embed/{YouTubeVideoId}")"
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
@@ -53,56 +59,90 @@
                 </div>
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-4 mb-4">
+                <MudText Typo="Typo.h5" Class="mb-2">
+                    <MudIcon Icon="@Icons.Material.Filled.MonetizationOn" Class="mr-2" />
+                    Pujas Actuales
+                </MudText>
+                <MudList T="string" Dense="true">
+                    @foreach (var bid in OnlineAuctionService.GetCurrentBids())
+
+                    {
+
+                        var bidderInfo = $"{bid.BidderName} ({bid.BidderNumber})";
+
+                        var bidAmount = $"${bid.Amount}";
+                        <MudListItem Text="@bidderInfo"
+                                     SecondaryText="@bidAmount"
+                                     Icon="@Icons.Material.Filled.Person"
+                                     IconColor="Color.Primary" />
+                    }
+                </MudList>
+            </MudPaper>
+        </MudItem>
     </MudGrid>
 
+
     <MudGrid>
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.h5" Class="mb-4">Información del Lote</MudText>
+        <MudItem xs="12" md="8">
+            <MudPaper Class="pa-4 mb-4">
+                <MudText Typo="Typo.h5" Class="mb-2">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Class="mr-2" />
+                    Información del Lote
+                </MudText>
                 @{
                     var lotInfo = OnlineAuctionService.GetCurrentLotInfo();
                 }
-                <MudList T="string">
-                    <MudListItem Text="Vendedor"
-                                 SecondaryText="@lotInfo.Vendedor"
-                                 Icon="@Icons.Material.Filled.Person" />
-                    <MudListItem Text="Tipo de Ganado"
-                                 SecondaryText="@lotInfo.TipoGanado"
-                                 Icon="@Icons.Material.Filled.Pets" />
-                    <MudListItem Text="Probado"
-                                 SecondaryText="@lotInfo.Probado"
-                                 Icon="@Icons.Material.Filled.CheckCircle" />
-                    <MudListItem Text="Con Factura"
-                                 SecondaryText="@lotInfo.ConFactura"
-                                 Icon="@Icons.Material.Filled.Receipt" />
-                    <MudListItem Text="Raza"
-                                 SecondaryText="@lotInfo.Raza"
-                                 Icon="@Icons.Material.Filled.Category" />
-                    <MudListItem Text="Cantidad"
-                                 SecondaryText="@lotInfo.Cantidad.ToString()"
-                                 Icon="@Icons.Material.Filled.Numbers" />
-                    <MudListItem Text="Peso Promedio"
-                                 SecondaryText="@($"{lotInfo.PesoPromedio} kg")"
-                                 Icon="@Icons.Material.Filled.Scale" />
-                    <MudListItem Text="Precio de Salida"
-                                 SecondaryText="@($"$ {lotInfo.PrecioSalida}")"
-                                 Icon="@Icons.Material.Filled.MonetizationOn" />
-                    <MudListItem Text="Descripción"
-                                 SecondaryText="@lotInfo.Descripcion"
-                                 Icon="@Icons.Material.Filled.Description" />
-                </MudList>
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudList T="string" Dense="true">
+                            <MudListItem Icon="@Icons.Material.Filled.Person">
+                                <MudText>Vendedor: @lotInfo.Vendedor</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.Pets">
+                                <MudText>Tipo de Ganado: @lotInfo.TipoGanado</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.CheckCircle">
+                                <MudText>Probado: @lotInfo.Probado</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.Receipt">
+                                <MudText>Con Factura: @lotInfo.ConFactura</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.Category">
+                                <MudText>Raza: @lotInfo.Raza</MudText>
+                            </MudListItem>
+                        </MudList>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudList T="string" Dense="true">
+                            <MudListItem Icon="@Icons.Material.Filled.Numbers">
+                                <MudText>Cantidad: @lotInfo.Cantidad</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.Scale">
+                                <MudText>Peso Promedio: @lotInfo.PesoPromedio kg</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.MonetizationOn">
+                                <MudText>Precio de Salida: $@lotInfo.PrecioSalida</MudText>
+                            </MudListItem>
+                            <MudListItem Icon="@Icons.Material.Filled.Description">
+                                <MudText>Descripción: @lotInfo.Descripcion</MudText>
+                            </MudListItem>
+                        </MudList>
 
+                    </MudItem>
+                </MudGrid>
                 <MudTextField T="string" Label="Ingrese su puja" Variant="Variant.Outlined" Class="mt-4" @bind-Value="_bidAmount" />
                 <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Class="mt-2" OnClick="PlaceBid">Colocar Puja</MudButton>
             </MudPaper>
         </MudItem>
     </MudGrid>
 
-
-
-
     <MudPaper Class="pa-4 mt-4">
-        <MudText Typo="Typo.h5" Class="mb-4">Compras Realizadas</MudText>
+        <MudText Typo="Typo.h5" Class="mb-4">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+            Compras Realizadas
+        </MudText>
         <MudTable Items="@OnlineAuctionService.GetPurchases()" Hover="true" Striped="true" Dense="true">
             <HeaderContent>
                 <MudTh>Raza</MudTh>
@@ -141,12 +181,6 @@
     protected override void OnInitialized()
     {
         _lots = LotService.GetLots();
-    }
-
-    private void SelectLot(int lotId)
-    {
-        _selectedLot = _lots.FirstOrDefault(l => l.Id == lotId);
-        _bidAmount = (_selectedLot?.CurrentBid ?? 0 + 1).ToString();
     }
 
     private void PlaceBid()
