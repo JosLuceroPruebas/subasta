@@ -14,5 +14,6 @@ builder.Services.AddMudServices();
 // Registrar los servicios personalizados
 builder.Services.AddScoped<LotService>();
 builder.Services.AddScoped<AnimalRegistrationService>();
+builder.Services.AddScoped<OnlineAuctionService>(); // Add this line
 
 await builder.Build().RunAsync();
