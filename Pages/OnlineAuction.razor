@@ -34,8 +34,10 @@
                             <!-- Fecha de Subasta -->
                             <MudItem xs="6">
                                 <MudListItem Icon="@Icons.Material.Filled.CalendarToday" IconColor="Color.Secondary">
-                                    <MudText Typo="Typo.body1">Fecha de Subasta</MudText>
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@OnlineAuctionService.GetAuctionDate().ToShortDateString()</MudText>
+                                    <MudStack AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Spacing="1">
+                                        <MudText Typo="Typo.body1">Fecha de Subasta</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Secondary">@OnlineAuctionService.GetAuctionDate().ToShortDateString()</MudText>
+                                    </MudStack>
                                 </MudListItem>
                             </MudItem>
                         </MudGrid>

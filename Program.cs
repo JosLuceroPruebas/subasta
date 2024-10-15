@@ -15,5 +15,6 @@ builder.Services.AddMudServices();
 builder.Services.AddScoped<LotService>();
 builder.Services.AddScoped<AnimalRegistrationService>();
 builder.Services.AddScoped<OnlineAuctionService>(); // Add this line
+builder.Services.AddScoped<AnimalDataService>(); // Add this line
 
 await builder.Build().RunAsync();

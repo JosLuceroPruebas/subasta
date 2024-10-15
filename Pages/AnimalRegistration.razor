@@ -1,99 +1,163 @@
 @page "/animal-registration"
+@using LivestockAuction.Services
 @inject ISnackbar Snackbar
 @inject LivestockAuction.Services.AnimalRegistrationService AnimalRegistrationService
+@inject LivestockAuction.Services.AnimalDataService AnimalDataService
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
-    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Recepción de Animales</MudText>
-    
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-4">
+        <MudIcon Icon="@Icons.Material.Filled.Pets" Class="mr-3" />
+        Recepción de Animales
+    </MudText>
+
     <MudPaper Class="pa-4 mb-4">
-        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-            <MudTextField T="string" Label="Nombre del Vendedor" Required="true" RequiredError="El nombre del vendedor es requerido" @bind-Value="sellerName" />
-            <MudTextField T="string" Label="Tipo de Animal" Required="true" RequiredError="El tipo de animal es requerido" @bind-Value="animal.AnimalType" />
-            <MudTextField T="string" Label="Raza" Required="true" RequiredError="La raza es requerida" @bind-Value="animal.Breed" />
-            <MudNumericField T="int" Label="Edad (meses)" Required="true" Min="1" RequiredError="La edad es requerida" @bind-Value="animal.Age" />
-            <MudNumericField T="decimal" Label="Peso (kg)" Required="true" Min="1" RequiredError="El peso es requerido" @bind-Value="animal.Weight" />
-            <MudTextField T="string" Label="Condición de Salud" Required="true" RequiredError="La condición de salud es requerida" @bind-Value="animal.HealthCondition" />
-            <MudNumericField T="decimal" Label="Precio Base ($)" Required="true" Min="1" RequiredError="El precio base es requerido" @bind-Value="animal.BasePrice" />
-            
-            <div class="d-flex align-center justify-space-between mt-6">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => form.Validate())">Validar</MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@AddAnimal" Disabled="@(!success)">Agregar Animal</MudButton>
-            </div>
-        </MudForm>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                @if (auctionDates?.Any() == true)
+
+                {
+                    <MudSelect T="string" Label="Fecha de la Subasta" AnchorOrigin="Origin.BottomCenter" @bind-Value="animal.AuctionDate">
+                        @foreach (var date in auctionDates)
+
+                        {
+                            <MudSelectItem Value="@date.Value">@date.Display</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Raza" AnchorOrigin="Origin.BottomCenter" @bind-Value="animal.Breed">
+                    @foreach (var breed in breeds)
+                    {
+                        <MudSelectItem Value="@breed">@breed</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Tipo de Ganado" AnchorOrigin="Origin.BottomCenter" @bind-Value="animal.AnimalType">
+                    @foreach (var type in animalTypes)
+                    {
+                        <MudSelectItem Value="@type">@type</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="animal.Weight" Label="Peso (kg)" Variant="Variant.Outlined" Min="0" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="string" Label="Edad/Sexo" AnchorOrigin="Origin.BottomCenter" @bind-Value="animal.AgeSex">
+                    @foreach (var option in ageSexOptions)
+                    {
+                        <MudSelectItem Value="@option">@option</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudCheckBox @bind-Value="animal.IsTested" Label="Probado" Color="Color.Primary" />
+                <MudCheckBox @bind-Value="animal.HasInvoice" Label="Tiene Factura" Color="Color.Primary" />
+            </MudItem>
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAnimal" Class="mt-4">Agregar Cabeza de Ganado</MudButton>
     </MudPaper>
 
     <MudPaper Class="pa-4">
-        <MudText Typo="Typo.h5" Class="mb-4">Animales Registrados del Vendedor: @sellerName</MudText>
+        <MudText Typo="Typo.h5" Class="mb-4">Animales Registrados</MudText>
         <MudTable Items="@registeredAnimals" Hover="true" Striped="true">
             <HeaderContent>
+                <MudTh>Fecha de Subasta</MudTh>
                 <MudTh>Tipo</MudTh>
                 <MudTh>Raza</MudTh>
-                <MudTh>Edad (meses)</MudTh>
+                <MudTh>Edad/Sexo</MudTh>
                 <MudTh>Peso (kg)</MudTh>
-                <MudTh>Condición de Salud</MudTh>
-                <MudTh>Precio Base ($)</MudTh>
-                <MudTh>Acciones</MudTh>
+                <MudTh>Probado</MudTh>
+                <MudTh>Tiene Factura</MudTh>
             </HeaderContent>
             <RowTemplate>
+                <MudTd DataLabel="Fecha de Subasta">@context.AuctionDate</MudTd>
                 <MudTd DataLabel="Tipo">@context.AnimalType</MudTd>
                 <MudTd DataLabel="Raza">@context.Breed</MudTd>
-                <MudTd DataLabel="Edad">@context.Age</MudTd>
+                <MudTd DataLabel="Edad/Sexo">@context.AgeSex</MudTd>
                 <MudTd DataLabel="Peso">@context.Weight</MudTd>
-                <MudTd DataLabel="Condición">@context.HealthCondition</MudTd>
-                <MudTd DataLabel="Precio Base">@context.BasePrice</MudTd>
-                <MudTd>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => RemoveAnimal(context))">Eliminar</MudButton>
-                </MudTd>
+                <MudTd DataLabel="Probado">@(context.IsTested ? "Sí" : "No")</MudTd>
+                <MudTd DataLabel="Tiene Factura">@(context.HasInvoice ? "Sí" : "No")</MudTd>
             </RowTemplate>
         </MudTable>
-
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@SubmitAnimals" Class="mt-4" Disabled="@(registeredAnimals.Count == 0)">Registrar Todos los Animales</MudButton>
+    </MudPaper>
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.h6">Depuración de Datos</MudText>
+        <ul>
+            <li>Fechas de Subasta Cargadas: @auctionDates.Count</li>
+            <li>Razas Cargadas: @breeds.Count</li>
+            <li>Tipos de Animales Cargados: @animalTypes.Count</li>
+            <li>Opciones de Edad/Sexo Cargadas: @ageSexOptions.Count</li>
+        </ul>
     </MudPaper>
 </MudContainer>
 
 @code {
-    private bool success;
-    private string[] errors = Array.Empty<string>();
-    private MudForm form = null!;
+    private Animal animal = new Animal();
+    private List<Animal> registeredAnimals = new List<Animal>();
+    private List<AuctionDate> auctionDates = new List<AuctionDate>();
+    private List<string> breeds = new List<string>();
+    private List<string> animalTypes = new List<string>();
+    private List<string> ageSexOptions = new List<string>();
+    private bool isDataLoaded = false; // Nueva variable
+    protected override async Task OnInitializedAsync()
 
-    private string sellerName = "";
-    private LivestockAuction.Services.Animal animal = new();
-    private List<LivestockAuction.Services.Animal> registeredAnimals = new();
+    {
+        await LoadDataAsync();
+        isDataLoaded = true; // Indicar que los datos están cargados
+    }
+
+
+
+    private async Task LoadDataAsync()
+
+    {
+
+        try
+
+        {
+
+            auctionDates = await AnimalDataService.GetAuctionDatesAsync();
+
+            Console.WriteLine($"Fechas de subasta cargadas: {auctionDates.Count}");
+
+
+            breeds = await AnimalDataService.GetBreedsAsync();
+
+            Console.WriteLine($"Razas cargadas: {breeds.Count}");
+
+
+            animalTypes = await AnimalDataService.GetAnimalTypesAsync();
+
+            Console.WriteLine($"Tipos de animales cargados: {animalTypes.Count}");
+
+
+            ageSexOptions = await AnimalDataService.GetAgeSexOptionsAsync();
+
+            Console.WriteLine($"Opciones de edad/sexo cargadas: {ageSexOptions.Count}");
+
+
+            StateHasChanged(); // Forzar la actualización de la interfaz
+
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine($"Error al cargar datos: {ex.Message}");
+
+        }
+
+    }
 
     private void AddAnimal()
     {
-        registeredAnimals.Add(new LivestockAuction.Services.Animal
-        {
-            AnimalType = animal.AnimalType,
-            Breed = animal.Breed,
-            Age = animal.Age,
-            Weight = animal.Weight,
-            HealthCondition = animal.HealthCondition,
-            BasePrice = animal.BasePrice
-        });
-
-        animal = new LivestockAuction.Services.Animal();
-        form.ResetValidation();
-        StateHasChanged();
-    }
-
-    private void RemoveAnimal(LivestockAuction.Services.Animal animalToRemove)
-    {
-        registeredAnimals.Remove(animalToRemove);
-        StateHasChanged();
-    }
-
-    private void SubmitAnimals()
-    {
-        foreach (var registeredAnimal in registeredAnimals)
-        {
-            AnimalRegistrationService.RegisterAnimal(registeredAnimal);
-        }
-        
-        Snackbar.Add($"{registeredAnimals.Count} animales registrados para {sellerName}", Severity.Success);
-        
-        registeredAnimals.Clear();
-        sellerName = "";
-        StateHasChanged();
+        AnimalRegistrationService.RegisterAnimal(animal);
+        registeredAnimals = AnimalRegistrationService.GetRegisteredAnimals();
+        animal = new Animal();
+        Snackbar.Add("Animal registrado con éxito", Severity.Success);
     }
 }

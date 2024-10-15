@@ -4,37 +4,24 @@ namespace LivestockAuction.Services
 {
     public class AnimalRegistrationService
     {
-        private List<AnimalRegistration> _registrations = new List<AnimalRegistration>();
+        private List<Animal> _registrations = new List<Animal>();
 
         public void RegisterAnimal(Animal animal)
         {
-            _registrations.Add(new AnimalRegistration { SellerName = "Unknown", Animal = animal });
+            _registrations.Add(animal);
         }
 
-        public void RegisterAnimals(string sellerName, List<Animal> animals)
-        {
-            foreach (var animal in animals)
-            {
-                _registrations.Add(new AnimalRegistration { SellerName = sellerName, Animal = animal });
-            }
-        }
-
-        public List<AnimalRegistration> GetRegisteredAnimals() => _registrations;
-    }
-
-    public class AnimalRegistration
-    {
-        public string SellerName { get; set; }
-        public Animal Animal { get; set; }
+        public List<Animal> GetRegisteredAnimals() => _registrations;
     }
 
     public class Animal
     {
+        public string AuctionDate { get; set; }
         public string AnimalType { get; set; }
         public string Breed { get; set; }
-        public int Age { get; set; }
+        public string AgeSex { get; set; }
         public decimal Weight { get; set; }
-        public string HealthCondition { get; set; }
-        public decimal BasePrice { get; set; }
+        public bool IsTested { get; set; }
+        public bool HasInvoice { get; set; }
     }
 }
